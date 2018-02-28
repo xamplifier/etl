@@ -11,7 +11,7 @@ class CsvTest extends TestCase
         $file = __DIR__ . '/../examples/foobar.csv';
         $extractor = new Csv($file);
         $actual = $extractor->getHeaders();
-        $expected = ['email', 'name', 'usernam'];
+        $expected = ['email', 'name', 'username'];
 
         $this->assertEquals($expected, $actual);
     }
