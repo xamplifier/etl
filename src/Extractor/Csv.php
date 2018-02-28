@@ -2,46 +2,52 @@
 namespace Xamplifier\Etl\Extractor;
 
 use League\Csv\Reader;
+use Xamplifier\Etl\Extractor\Contracts\Extractor;
 
 /**
  * Csv class provides helpful functions in parsing CSV files.
  */
-class Csv extends Extractor
+class Csv implements Extractor
 {
     /**
      * Instance of League\Csv\Reader
      * @var Object
      */
-    protected $reader;
+    protected $csv;
+
+    /**
+     * Holding the fetched data
+     * @var Object
+     */
+    protected $data;
 
     public function __construct($filename)
     {
-        $this->reader = Reader::createFromPath($filename);
+        $this->csv = Reader::createFromPath($filename, 'r');
+        $this->data = new \StdClass;
+
         $this->setData();
     }
 
-
+    /**
+     * Returns the fetched data
+     *
+     * @return \StdClass
+     */
     public function getData()
     {
-        return $this->result;
-    }
-
-    public function setData()
-    {
-        $this->result = new \StdClass;
-        $this->result->keys = $this->getHeaders();
-        $this->result->data = $this->getRowsWithKeys();
+        return $this->data;
     }
 
     /**
-     * Check if the header is valid, case sensitive comparison.
+     * Creates an object holdings the CSV data
      *
-     * @param  string  $header Name of the header
-     * @return boolean         True if the header is found in the CSV headers.
+     * @return void
      */
-    public function isValidHeader($header)
+    public function setData()
     {
-        return in_array($this->getHeaders(), $header);
+        $this->data->keys = $this->getHeaders();
+        $this->data->data = $this->getRows();
     }
 
     /**
@@ -51,24 +57,21 @@ class Csv extends Extractor
      */
     public function getHeaders()
     {
-        return $this->reader->fetchOne();
+        return $this->csv->fetchOne();
     }
 
+    /**
+     * Returns all CSV rows
+     *
+     * @param  boolean $excludeHeaders Optionally keep headers
+     * @return array
+     */
     public function getRows($excludeHeaders = true)
     {
         if ($excludeHeaders) {
-            $this->reader->setOffset(1);
+            $this->csv->setHeaderOffset(0);
         }
 
-        return iterator_to_array($this->reader->fetchAll());
-    }
-
-    public function getRowsWithKeys($excludeHeaders = true)
-    {
-        if ($excludeHeaders) {
-            $this->reader->setOffset();
-        }
-
-        return iterator_to_array($this->reader->fetchAssoc());
+        return iterator_to_array($this->csv->getRecords());
     }
 }

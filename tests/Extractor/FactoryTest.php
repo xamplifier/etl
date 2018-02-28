@@ -15,5 +15,10 @@ class FactoryTest extends TestCase
         $expected = Csv::class;
 
         $this->assertEquals($expected, $actual);
+
+        // $actual = get_class(Factory::factory('json', __DIR__ . '/../examples/foobar.json'));
+        // $expected = Json::class;
+        //
+        // $this->assertEquals($expected, $actual);
     }
 }
