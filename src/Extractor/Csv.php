@@ -57,7 +57,7 @@ class Csv implements Extractor
      */
     public function getHeaders()
     {
-        return $this->csv->fetchOne();
+        return $this->csv->getHeader();
     }
 
     /**
