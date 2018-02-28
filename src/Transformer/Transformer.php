@@ -1,0 +1,210 @@
+<?php
+namespace Xamplifier\Etl\Transformer;
+
+use Xamplifier\Etl\Utilities\Inflector;
+use Xamplifier\Etl\Utilities\EntityValidator;
+
+class Transformer
+{
+
+    /**
+     * Transformer Entity
+     * @var \Xamplifier\Etl\Transformer\Entity;
+     */
+    protected $entity;
+
+    /**
+     * Extracted data
+     * @var array
+     */
+    protected $extracted;
+
+    /**
+     * Storage of entities
+     * @var \SplObjectStorage
+     */
+    protected $entities;
+
+    /**
+     * Enrich data from client config.
+     * @var array
+     */
+    protected $enrichData;
+
+    /**
+     * Class constuctor
+     */
+    public function __construct($extractedData, array $config = [])
+    {
+        $this->extracted = $extractedData;
+        $this->entities = new \SplObjectStorage;
+        if (!empty($config['client'])) {
+            $this->enrichData = $config['client'];
+        }
+        $this->validator = new EntityValidator($config);
+        $this->transform($config);
+    }
+
+    /**
+     * Transform the extracted data to entities.
+     *
+     * @return void
+     */
+    public function transform(array $config = [])
+    {
+        foreach ($this->extracted->data as $row) {
+            $this->entity = new Entity;
+            foreach ($this->getFields($config) as $field) {
+                $variation =  null;
+                $value = $this->getFieldValue($row, $field);
+                if (!$value) {
+                    list($variation, $value) = $this->getVariationAndValue($row, $field, $config);
+                }
+                $type = $this->getFieldType($field, $value, $config);
+                $value = $this->typeCastValue($value, $type);
+                $this->entity->setProperty($field, $value, $variation, $type);
+            }
+            $this->entity = $this->validator->validate($this->entity);
+            $this->entity->setRow($row);
+            $this->entities->attach($this->entity);
+        }
+    }
+
+    /**
+     * Typecast the value based on type.
+     *
+     * The supported types are:
+     * 'integer',
+     * 'boolean'
+     * Any other type will be ignored and typecasted to string.
+     *
+     * @param  string $value Field value
+     * @param  string $type  Field type
+     * @return string        Typecasted value
+     */
+    protected function typeCastValue($value, $type)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        if ($type == 'integer') {
+            return (integer) $value;
+        }
+
+        if ($type == 'boolean') {
+            return (boolean) $value;
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Return the field type. Defaults to string.
+     *
+     * @param  string $field Field name
+     * @return string        Field type
+     */
+    protected function getFieldType(string $field, $value, array $config = [])
+    {
+        $fields = config($config['configFile'].'.fields');
+        if (!empty($fields[$field]['type'])) {
+            return $fields[$field]['type'];
+        }
+
+        $type = gettype($value);
+        if ($type) {
+            return $type;
+        }
+
+        return 'string';
+    }
+
+    /**
+     * Returns the field value from the row.
+     *
+     * @param  array  $row       CSV row
+     * @param  string $field     field name
+     * @param  string $variedKey variation key
+     * @return string|null       Field's value
+     */
+    protected function getFieldValue(array $row, string $fieldName)
+    {
+        $value = null;
+        //Try enrich data
+        if (array_has($this->enrichData, $fieldName)) {
+            $value = array_get($this->enrichData, $fieldName);
+        }
+
+        //Try row data
+        if (array_has($row, $fieldName)) {
+            $value = array_get($row, $fieldName);
+        }
+
+        //Try row data with variation
+        $caseSensitiveName = $this->getFieldCase($row, $fieldName);
+        if (array_has($row, $caseSensitiveName)) {
+            $value = array_get($row, $caseSensitiveName);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Returns the storage of entities.
+     *
+     * @return \SplObjectStorage
+     */
+    public function getTransformerData()
+    {
+        return $this->entities;
+    }
+
+    /**
+     * Returns the properties.
+     *
+     * @throws \RunTimeException When the config is not being created
+     * @return array               All the properties
+     */
+    protected function getFields(array $config = [])
+    {
+        $fields = config($config['configFile'].'.fields');
+        if (!$fields) {
+            throw new \RunTimeException('Please create \'etl\' config to proceed.');
+        }
+        if (!is_array($fields)) {
+            throw new \RunTimeException('Etl SHOULD return an associative array');
+        }
+
+        return array_keys($fields);
+    }
+
+    protected function getVariationAndValue(array $row, string $fieldName, array $config = [], $overwrite = false)
+    {
+        $variations = Inflector::variationsOf($fieldName, $config);
+        $value = $variation = null;
+        foreach ($variations as $v) {
+            $variation = $this->getFieldCase($row, $v);
+            if (array_has($row, $variation)) {
+                $value = array_get($row, $variation);
+            }
+            //Get out of the loop when you find a value
+            if ($value && !$overwrite) {
+                break;
+            }
+        }
+
+        return array_map('trim', [$variation, $value]);
+    }
+
+    protected function getFieldCase($row, $fieldName)
+    {
+        foreach ($row as $header => $value) {
+            if (strcasecmp($header, $fieldName) === 0) {
+                return $header;
+            }
+        }
+
+        return;
+    }
+}
