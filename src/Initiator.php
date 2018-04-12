@@ -1,12 +1,13 @@
 <?php
 namespace Xamplifier\Etl;
 
-use Xamplifier\Etl\Extractor\Factory;
-use Xamplifier\Etl\Transformer\Transformer;
 use Xamplifier\Etl\Loader\Loader;
+use Xamplifier\Etl\Extractor\Factory;
+use Xamplifier\Etl\Contract\EtlModel;
+use Xamplifier\Etl\Transformer\Transformer;
 
 /**
- * Worker class acts as middle man between the ETL class.
+ * Initiates the library.
  */
 class Initiator
 {
@@ -23,10 +24,12 @@ class Initiator
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $this->extractor = Factory::factory($ext, $filename);
         $data = $this->extractor->getData();
-        $this->status['rows'] = count($data->data);
-        $this->status['keys'] = count($data->keys);
+
         $transformer = new Transformer($data, $config);
         $entities = $transformer->getTransformerData();
+
+        $this->status['rows'] = count($data->data);
+        $this->status['keys'] = count($data->keys);
         $this->status['entities'] = $entities->count();
         new Loader($entities, $config);
     }
@@ -42,4 +45,5 @@ class Initiator
 
         return $this->status;
     }
+
 }
