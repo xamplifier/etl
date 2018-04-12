@@ -21,9 +21,10 @@ class EntityValidator
      */
     protected $rules = [];
 
-    public function __construct($config)
+    public function __construct($fields)
     {
-        $this->fields = config($config['configFile'].'.fields');
+        $this->fields = $fields;
+
         if (!$this->fields) {
             $message = 'Cannot instantiate validator without providing validation rules';
             throw new \RuntimeException($message);

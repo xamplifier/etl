@@ -1,12 +1,13 @@
 <?php
 namespace Xamplifier\Etl;
 
-use Xamplifier\Etl\Extractor\Factory;
-use Xamplifier\Etl\Transformer\Transformer;
 use Xamplifier\Etl\Loader\Loader;
+use Xamplifier\Etl\Extractor\Factory;
+use Xamplifier\Etl\Contract\EtlModel;
+use Xamplifier\Etl\Transformer\Transformer;
 
 /**
- * Worker class acts as middle man between the ETL class.
+ * Initiates the library.
  */
 class Initiator
 {
@@ -20,15 +21,45 @@ class Initiator
 
     public function __construct($filename, array $config = [])
     {
+        $this->checkModels($config['models']);
+
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
         $this->extractor = Factory::factory($ext, $filename);
         $data = $this->extractor->getData();
-        $this->status['rows'] = count($data->data);
-        $this->status['keys'] = count($data->keys);
+
         $transformer = new Transformer($data, $config);
         $entities = $transformer->getTransformerData();
+
+        $this->status['rows'] = count($data->data);
+        $this->status['keys'] = count($data->keys);
         $this->status['entities'] = $entities->count();
+
         new Loader($entities, $config);
+    }
+
+    /**
+     * Given models should be checked before starting extracting
+     *
+     * @param  array  $models Eloquent models
+     */
+    protected function checkModels(array $models = [])
+    {
+        if (empty($models) || (empty($models['pass']) && empty($models['fail']))) {
+            throw new \InvalidArgumentException("Models were not found");
+        }
+
+        $all = array_merge($models['pass'], $models['fail']);
+        $length = sizeof($all) - 1;
+        while ($length >= 0) {
+            $class = $all[$length];
+            $interfaces = class_implements($class);
+
+            if (!in_array(EtlModel::class, $interfaces)) {
+                throw new \InvalidArgumentException($all[$length] . " does not implement " . EtlModel::class);
+            }
+
+            $length--;
+        }
     }
 
     public function status()
@@ -42,4 +73,5 @@ class Initiator
 
         return $this->status;
     }
+
 }
