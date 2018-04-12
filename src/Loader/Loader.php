@@ -14,7 +14,7 @@ class Loader
         if (!$this->entities->count()) {
             return false;
         }
-        $this->setModels($config);
+        $this->setModels($config['models']);
         $this->process();
     }
 
@@ -44,10 +44,8 @@ class Loader
      *
      * @return void
      */
-    public function setModels(array $config = [])
+    public function setModels(array $models = [])
     {
-        $models = config($config['configFile'].'.models');
-
         if (!$models) {
             throw new \RunTimeException('Please enter models in the \'etl\' config to proceed');
         }

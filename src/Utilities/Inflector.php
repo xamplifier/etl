@@ -16,13 +16,14 @@ class Inflector
      * @param  string $word Just a word
      * @return array        The variations
      */
-    public static function variationsOf($word, array $config = [])
+    public static function variationsOf($word, array $variations = [])
     {
         $result = [];
-        $variations = config($config['configFile'].'.fields');
+
         if (!array_key_exists($word, $variations)) {
             throw new \InvalidArgumentException('The word "' . $word . '" has no variations.');
         }
+
         if (isset($variations[$word][self::VARIATIONS])) {
             $result = array_merge($result, $variations[$word][self::VARIATIONS]);
         }

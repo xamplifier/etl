@@ -41,7 +41,8 @@ class Transformer
         if (!empty($config['client'])) {
             $this->enrichData = $config['client'];
         }
-        $this->validator = new EntityValidator($config);
+
+        $this->validator = new EntityValidator($config['fields']);
         $this->transform($config);
     }
 
@@ -53,17 +54,19 @@ class Transformer
     public function transform(array $config = [])
     {
         foreach ($this->extracted->data as $row) {
+
             $this->entity = new Entity;
-            foreach ($this->getFields($config) as $field) {
+            foreach ($this->getFields($config['fields']) as $field) {
                 $variation =  null;
                 $value = $this->getFieldValue($row, $field);
                 if (!$value) {
                     list($variation, $value) = $this->getVariationAndValue($row, $field, $config);
                 }
-                $type = $this->getFieldType($field, $value, $config);
+                $type = $this->getFieldType($field, $value, $config['fields']);
                 $value = $this->typeCastValue($value, $type);
                 $this->entity->setProperty($field, $value, $variation, $type);
             }
+
             $this->entity = $this->validator->validate($this->entity);
             $this->entity->setRow($row);
             $this->entities->attach($this->entity);
@@ -105,9 +108,8 @@ class Transformer
      * @param  string $field Field name
      * @return string        Field type
      */
-    protected function getFieldType(string $field, $value, array $config = [])
+    protected function getFieldType(string $field, $value, array $fields = [])
     {
-        $fields = config($config['configFile'].'.fields');
         if (!empty($fields[$field]['type'])) {
             return $fields[$field]['type'];
         }
@@ -164,16 +166,13 @@ class Transformer
      * Returns the properties.
      *
      * @throws \RunTimeException When the config is not being created
-     * @return array               All the properties
+     * @param  $fields           Config fields
+     * @return array             All the properties
      */
-    protected function getFields(array $config = [])
+    protected function getFields(array $fields = [])
     {
-        $fields = config($config['configFile'].'.fields');
         if (!$fields) {
             throw new \RunTimeException('Please create \'etl\' config to proceed.');
-        }
-        if (!is_array($fields)) {
-            throw new \RunTimeException('Etl SHOULD return an associative array');
         }
 
         return array_keys($fields);
@@ -181,7 +180,7 @@ class Transformer
 
     protected function getVariationAndValue(array $row, string $fieldName, array $config = [], $overwrite = false)
     {
-        $variations = Inflector::variationsOf($fieldName, $config);
+        $variations = Inflector::variationsOf($fieldName, $config['fields']);
         $value = $variation = null;
         foreach ($variations as $v) {
             $variation = $this->getFieldCase($row, $v);
