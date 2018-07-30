@@ -198,7 +198,7 @@ class Entity
         $props = array_column(get_object_vars($this), self::FIELD_KEY);
         foreach ($props as $prop) {
             $value = $this->getPropertyValue($prop);
-            if ($empty && strlen(trim($value)) <= 0) {
+            if ($empty && is_string($value) && strlen(trim($value)) <= 0) {
                 continue;
             }
             $result[$prop] = $value;
@@ -219,9 +219,16 @@ class Entity
     public function setRow($row, array $options = [])
     {
         $options += ['empty' => true];
+
         //exclude empty ones.
         if ($options['empty']) {
             foreach ($row as $column => $value) {
+
+                //@todo: temp fix
+                if (is_array($value)) {
+                    continue;
+                }
+
                 if (strlen(trim($value)) > 0) {
                     continue;
                 }

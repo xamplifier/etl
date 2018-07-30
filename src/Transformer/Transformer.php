@@ -91,15 +91,17 @@ class Transformer
             return $value;
         }
 
-        if ($type == 'integer') {
-            return (integer) $value;
+        switch ($type) {
+            case 'array':
+                return (array) $value;
+            case 'integer':
+                return (integer) $value;
+            case 'boolean':
+                return (boolean) $value;
+            case 'string':
+            default:
+                return (string) $value;
         }
-
-        if ($type == 'boolean') {
-            return (boolean) $value;
-        }
-
-        return (string) $value;
     }
 
     /**

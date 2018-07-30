@@ -8,6 +8,7 @@ trait DefaultRulesTrait
         'date' => 'date',
         'email' => 'email',
         'integer' => 'integer',
+        'array' => 'array',
     ];
 
     /**
