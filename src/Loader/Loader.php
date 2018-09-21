@@ -11,6 +11,7 @@ class Loader
     public function __construct(\SplObjectStorage $entities, array $config = [])
     {
         $this->entities = $entities;
+
         if (!$this->entities->count()) {
             return false;
         }
