@@ -19,17 +19,23 @@ class Initiator
 
     protected $status;
 
-    public function __construct($filename, array $config = [])
+    public function __construct($source, array $config = [])
     {
-        $this->checkModels($config['models']);
 
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        $this->extractor = Factory::factory($ext, $filename);
+        // $this->checkModels($config['models']);
+        $ext = gettype($source);
+        if ($ext != 'array') {
+            $ext = pathinfo($source, PATHINFO_EXTENSION);
+        }
+
+        $this->extractor = Factory::factory($ext, $source);
+
         $data = $this->extractor->getData();
 
         $transformer = new Transformer($data, $config);
-        $entities = $transformer->getTransformerData();
 
+        $entities = $transformer->getTransformerData();
+    
         $this->status['rows'] = count($data->data);
         $this->status['keys'] = count($data->keys);
         $this->status['entities'] = $entities->count();
@@ -50,8 +56,10 @@ class Initiator
 
         $all = array_merge($models['pass'], $models['fail']);
         $length = sizeof($all) - 1;
+
         while ($length >= 0) {
             $class = $all[$length];
+
             $interfaces = class_implements($class);
 
             if (!in_array(EtlModel::class, $interfaces)) {
@@ -73,5 +81,4 @@ class Initiator
 
         return $this->status;
     }
-
 }

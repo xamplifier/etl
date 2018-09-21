@@ -11,21 +11,25 @@ final class Factory
      * Determines which object to create based on the given type.
      *
      * @param  string $type Object type
-     * @return object Csv|Json|Xml
+     * @return CsvParser|JsonParser|XmlParser|ArrayParser
      */
-    public static function factory(string $type, $filename)
+    public static function factory(string $type, $source)
     {
         switch ($type) {
             case 'csv':
-                return new Csv($filename);
+                return new Csv($source);
 
                 break;
             case 'json':
-                return new Json($filename);
+                return new Json($source);
 
                 break;
             case 'xml':
-                return new Xml($filename);
+                return new Xml($source);
+
+                break;
+            case 'array':
+                return new Arr($source);
 
                 break;
             default:

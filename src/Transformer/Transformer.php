@@ -41,7 +41,6 @@ class Transformer
         if (!empty($config['client'])) {
             $this->enrichData = $config['client'];
         }
-
         $this->validator = new EntityValidator($config['fields']);
         $this->transform($config);
     }
@@ -54,10 +53,11 @@ class Transformer
     public function transform(array $config = [])
     {
         foreach ($this->extracted->data as $row) {
-
             $this->entity = new Entity;
+
             foreach ($this->getFields($config['fields']) as $field) {
                 $variation =  null;
+
                 $value = $this->getFieldValue($row, $field);
                 if (!$value) {
                     list($variation, $value) = $this->getVariationAndValue($row, $field, $config);
