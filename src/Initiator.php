@@ -21,8 +21,7 @@ class Initiator
 
     public function __construct($source, array $config = [])
     {
-
-        // $this->checkModels($config['models']);
+        $this->checkModels($config['models']);
         $ext = gettype($source);
         if ($ext != 'array') {
             $ext = pathinfo($source, PATHINFO_EXTENSION);
@@ -35,7 +34,7 @@ class Initiator
         $transformer = new Transformer($data, $config);
 
         $entities = $transformer->getTransformerData();
-    
+
         $this->status['rows'] = count($data->data);
         $this->status['keys'] = count($data->keys);
         $this->status['entities'] = $entities->count();
