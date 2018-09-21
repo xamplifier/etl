@@ -1,11 +1,12 @@
 <?php
 namespace Xamplifier\Etl\Loader;
 
-use Illuminate\Support\Arr;
+use \RuntimeException;
 
 class Loader
 {
     protected $entities;
+
     protected $models;
 
     public function __construct(\SplObjectStorage $entities, array $config = [])
@@ -48,17 +49,16 @@ class Loader
     public function setModels(array $models = [])
     {
         if (!$models) {
-            throw new \RunTimeException('Please enter models in the \'etl\' config to proceed');
+            throw new RuntimeException('Please enter models in the \'etl\' config to proceed');
         }
 
         if (!is_array($models)) {
-            throw new \RunTimeException('Models SHOULD be an array.');
+            throw new RuntimeException('Models SHOULD be an array.');
         }
 
-        if (!Arr::has($models, 'pass') && !Arr::has($models, 'fail')) {
-            throw new \RunTimeException('Please define in model either pass or fail models, or both.');
+        if (!isset($models['pass']) && !isset($models['fail'])) {
+            throw new RuntimeException('Please define in model either pass or fail models, or both.');
         }
-        //@todo: Should check if it is child of Eloquent model
 
         $this->models = $models;
     }

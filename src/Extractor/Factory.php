@@ -11,7 +11,7 @@ final class Factory
      * Determines which object to create based on the given type.
      *
      * @param  string $type Object type
-     * @return CsvParser|JsonParser|XmlParser|ArrayParser
+     * @return Csv|Json|Xml|Array
      */
     public static function factory(string $type, $source)
     {

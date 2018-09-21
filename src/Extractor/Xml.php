@@ -1,14 +1,20 @@
 <?php
 namespace Xamplifier\Etl\Extractor;
 
+use \stdClass;
+
 /**
  * XML parser
  */
 class Xml
 {
-    public function __construct($filename = nul)
+    protected $result;
+
+    public function __construct(string $filename = nul)
     {
-        //code omitted
+        $this->setData();
+        $this->result = new stdClass;
+        $filename = file_get_contents($filename);
     }
 
     public function setData() :void
@@ -16,7 +22,7 @@ class Xml
         //code omitted
     }
 
-    public function getData()
+    public function getData() :stdClass
     {
         //code omitted
     }

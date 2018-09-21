@@ -1,6 +1,7 @@
 <?php
 namespace Xamplifier\Etl\Extractor;
 
+use \stdClass;
 use League\Csv\Reader;
 use Xamplifier\Etl\Extractor\Contracts\Extractor;
 
@@ -10,21 +11,20 @@ use Xamplifier\Etl\Extractor\Contracts\Extractor;
 class Csv implements Extractor
 {
     /**
-     * Instance of League\Csv\Reader
-     * @var Object
+     * @var Reader
      */
     protected $csv;
 
     /**
      * Holding the fetched data
-     * @var Object
+     * @var stdClass
      */
-    protected $data;
+    protected $result;
 
     public function __construct($filename)
     {
         $this->csv = Reader::createFromPath($filename, 'r');
-        $this->data = new \StdClass;
+        $this->result = new stdClass;
 
         $this->setData();
     }
@@ -32,11 +32,11 @@ class Csv implements Extractor
     /**
      * Returns the fetched data
      *
-     * @return \StdClass
+     * @return stdClass
      */
-    public function getData()
+    public function getData() :stdClass
     {
-        return $this->data;
+        return $this->result;
     }
 
     /**
@@ -46,8 +46,8 @@ class Csv implements Extractor
      */
     public function setData() :void
     {
-        $this->data->keys = $this->getHeaders();
-        $this->data->data = $this->getRows();
+        $this->result->keys = $this->getHeaders();
+        $this->result->data = $this->getRows();
     }
 
     /**

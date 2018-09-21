@@ -1,7 +1,7 @@
 <?php
 namespace Xamplifier\Etl\Extractor;
 
-use StdClass;
+use \stdClass;
 use RuntimeException;
 
 /**
@@ -9,8 +9,11 @@ use RuntimeException;
  */
 class Arr
 {
+    protected $result;
+
     public function __construct($source = null)
     {
+        $this->result = new stdClass;
         $this->setData($source);
     }
 
@@ -20,12 +23,11 @@ class Arr
             throw new RuntimeException('The array is empty');
         }
 
-        $this->result = new StdClass;
         $this->result->data = $this->getRowsWithKeys($source);
         $this->result->keys = $this->getKeys($source);
     }
 
-    public function getData()
+    public function getData() :stdClass
     {
         return $this->result;
     }
