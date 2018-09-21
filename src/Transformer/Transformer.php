@@ -38,8 +38,8 @@ class Transformer
     {
         $this->extracted = $extractedData;
         $this->entities = new \SplObjectStorage;
-        if (!empty($config['client'])) {
-            $this->enrichData = $config['client'];
+        if (!empty($config['enrichData'])) {
+            $this->enrichData = $config['enrichData'];
         }
 
         $this->validator = new EntityValidator($config['fields']);
