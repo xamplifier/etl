@@ -40,10 +40,8 @@ class EntityValidator
     protected function buildRules()
     {
         foreach ($this->fields as $fieldName => $value) {
-            $type = array_get($value, 'type') ?: 'string';
-            $rules = array_has($value, 'rules')
-                ? $value['rules']
-                : $this->defaultRules($type);
+            $type = $value['type'] ?? 'string';
+            $rules = $value['rules'] ?? $this->defaultRules($type);
             $this->rules[$fieldName] = $rules;
         }
 

@@ -1,6 +1,7 @@
 <?php
 namespace Xamplifier\Etl\Transformer;
 
+use \RuntimeException;
 use Xamplifier\Etl\Utilities\Inflector;
 use Xamplifier\Etl\Utilities\EntityValidator;
 
@@ -136,19 +137,19 @@ class Transformer
     {
         $value = null;
         //Try enrich data
-        if (array_has($this->enrichData, $fieldName)) {
-            $value = array_get($this->enrichData, $fieldName);
+        if (isset($this->enrichData[$fieldName])) {
+            $value = $this->enrichData[$fieldName];
         }
 
         //Try row data
-        if (array_has($row, $fieldName)) {
-            $value = array_get($row, $fieldName);
+        if (isset($row[$fieldName])) {
+            $value = $row[$fieldName];
         }
 
         //Try row data with variation
         $caseSensitiveName = $this->getFieldCase($row, $fieldName);
-        if (array_has($row, $caseSensitiveName)) {
-            $value = array_get($row, $caseSensitiveName);
+        if (isset($row[$caseSensitiveName])) {
+            $value = $row[$caseSensitiveName];
         }
 
         return $value;
@@ -174,7 +175,7 @@ class Transformer
     protected function getFields(array $fields = [])
     {
         if (!$fields) {
-            throw new \RunTimeException('Please create \'etl\' config to proceed.');
+            throw new RuntimeException('Please create \'etl\' config to proceed.');
         }
 
         return array_keys($fields);
@@ -186,8 +187,8 @@ class Transformer
         $value = $variation = null;
         foreach ($variations as $v) {
             $variation = $this->getFieldCase($row, $v);
-            if (array_has($row, $variation)) {
-                $value = array_get($row, $variation);
+            if (isset($row[$variation])) {
+                $value = $row[$variation];
             }
             //Get out of the loop when you find a value
             if ($value && !$overwrite) {

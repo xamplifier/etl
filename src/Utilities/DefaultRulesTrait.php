@@ -22,10 +22,6 @@ trait DefaultRulesTrait
      */
     public function defaultRules(string $type)
     {
-        if (!array_has($this->typeRules, $type)) {
-            return;
-        }
-
-        return array_get($this->typeRules, $type);
+        return  !isset($this->typeRules[$type]) ? $this->typeRules[$type] : null;
     }
 }
