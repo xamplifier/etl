@@ -1,10 +1,11 @@
 <?php
 namespace Xamplifier\Etl\Extractor;
 
-use Illuminate\Support\Arr as LaravelArr;
+use StdClass;
+use RuntimeException;
 
 /**
- * JSON parser
+ * Array parser
  */
 class Arr
 {
@@ -13,25 +14,13 @@ class Arr
         $this->setData($source);
     }
 
-
-    /**
-    * Validates Json file and returns error messages
-    *
-    */
-    public function validateJson(...$args)
-    {
-        json_decode(...$args);
-        return static::$_messages[json_last_error()];
-    }
-
-    public function setData($source)
+    public function setData($source) :void
     {
         if (empty($source)) {
-            throw new \RunTimeException('The array is empty');
+            throw new RuntimeException('The array is empty');
         }
 
-
-        $this->result = new \StdClass;
+        $this->result = new StdClass;
         $this->result->data = $this->getRowsWithKeys($source);
         $this->result->keys = $this->getKeys($source);
     }
@@ -49,8 +38,8 @@ class Arr
      */
     public function getKeys($source)
     {
-        $maxCountKeys = 0;
         $keys = [];
+        $maxCountKeys = 0;
 
         array_walk($this->result->data, function ($item) use (&$keys, &$maxCountKeys) {
             if (count($item) > $maxCountKeys) {

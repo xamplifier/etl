@@ -44,7 +44,7 @@ class Csv implements Extractor
      *
      * @return void
      */
-    public function setData()
+    public function setData() :void
     {
         $this->data->keys = $this->getHeaders();
         $this->data->data = $this->getRows();

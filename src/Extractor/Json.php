@@ -36,7 +36,7 @@ class Json
         return static::$_messages[json_last_error()];
     }
 
-    public function setData($filename)
+    public function setData($filename) :void
     {
         if (!$this->validateJson($filename)) {
             $error = static::$_messages[json_last_error()];

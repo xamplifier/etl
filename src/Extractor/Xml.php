@@ -8,10 +8,10 @@ class Xml
 {
     public function __construct($filename = nul)
     {
-        $file = file_get_contents($filename);
+        //code omitted
     }
 
-    public function setData()
+    public function setData() :void
     {
         //code omitted
     }
