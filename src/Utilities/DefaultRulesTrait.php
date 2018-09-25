@@ -22,6 +22,6 @@ trait DefaultRulesTrait
      */
     public function defaultRules(string $type)
     {
-        return  !isset($this->typeRules[$type]) ? $this->typeRules[$type] : null;
+        return  $this->typeRules[$type] ?? null;
     }
 }
