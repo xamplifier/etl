@@ -1,6 +1,7 @@
 <?php
 namespace Xamplifier\Etl\Transformer;
 
+use Carbon\Carbon;
 use \RuntimeException;
 use Xamplifier\Etl\Utilities\Inflector;
 use Xamplifier\Etl\Utilities\EntityValidator;
@@ -99,6 +100,8 @@ class Transformer
                 return (integer) $value;
             case 'boolean':
                 return (boolean) $value;
+            case 'date':
+                return Carbon::parse($value);
             case 'string':
             default:
                 return (string) $value;

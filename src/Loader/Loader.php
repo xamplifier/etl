@@ -23,9 +23,11 @@ class Loader
     protected function process()
     {
         $this->entities->rewind();
+
         while ($this->entities->valid()) {
             $entity = $this->entities->current();
             $models = $this->getModels();
+
             if (!$entity->hasErrors()) {
                 foreach ($models['pass'] as $m) {
                     $obj = new $m;
