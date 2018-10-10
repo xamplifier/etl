@@ -23,8 +23,8 @@ class Json
 
     public function __construct($filename = null)
     {
-        $filename = file_get_contents($filename);
-        $this->setData($filename);
+        $this->result = new stdClass;
+        $this->setData(file_get_contents($filename));
     }
 
 
