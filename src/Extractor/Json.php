@@ -23,8 +23,8 @@ class Json
 
     public function __construct($filename = null)
     {
-        $filename = file_get_contents($filename);
-        $this->setData($filename);
+        $this->result = new stdClass;
+        $this->setData(file_get_contents($filename));
     }
 
 
@@ -46,8 +46,10 @@ class Json
             throw new RuntimeException($error);
         }
 
-        $this->result->keys = $this->getKeys($filename);
-        $this->result->data = $this->getRowsWithKeys($filename);
+        $data = json_decode($filename, true);
+
+        $this->result->keys = $this->getKeys($data);
+        $this->result->data = $this->getRowsWithKeys($data);
     }
 
     public function getData() :stdClass
@@ -60,14 +62,12 @@ class Json
      *
      * @return array
      */
-    public function getKeys($filename)
+    public function getKeys(array $data)
     {
         $keys = [];
-        $assoc = json_decode($filename, true);
-        foreach ($assoc as $index => $array) {
-            foreach ($array as $key => $value) {
-                $keys[] = $key;
-            }
+
+        foreach ($data as $index => $array) {
+            $keys = array_merge($keys, array_keys($array));
         }
 
         return array_unique($keys);
@@ -78,14 +78,14 @@ class Json
      *
      * @return array
      */
-    public function getRowsWithKeys($filename)
+    public function getRowsWithKeys(array $data)
     {
-        $data = [];
-        $assoc = json_decode($filename, true);
-        foreach ($assoc as $index => $array) {
-            $data[] = $array;
+        $rows = [];
+
+        foreach ($data as $index => $array) {
+            $rows[] = $array;
         }
 
-        return $data;
+        return $rows;
     }
 }
