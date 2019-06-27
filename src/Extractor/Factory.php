@@ -17,24 +17,20 @@ final class Factory
     {
         switch ($type) {
             case 'csv':
+
                 return new Csv($source);
-
-                break;
             case 'json':
+
                 return new Json($source);
-
-                break;
             case 'xml':
+
                 return new Xml($source);
-
-                break;
             case 'array':
-                return new Arr($source);
 
-                break;
+                return new Arr($source);
             default:
+
                 throw new \InvalidArgumentException('Unknown format given');
-                break;
         }
     }
 }
